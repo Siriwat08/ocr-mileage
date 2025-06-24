@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OCR Mileage Reader</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/2.1.5/tesseract.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #result { font-size: 1.2rem; margin-top: 10px; color: #333; }
+  </style>
+</head>
+<body>
+  <h2>OCR Mileage Reader 📸</h2>
+  <input id="imageInput" type="file" accept="image/*" /><br><br>
+  <div id="status">กำลังรอภาพ...</div>
+  <div id="result"></div>
+
+  <script>
+    const imageInput = document.getElementById('imageInput')
+    const statusEl = document.getElementById('status')
+    const resultEl = document.getElementById('result')
+    imageInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0]
+      if (!file) return
+      statusEl.innerText = "กำลัง OCR..."
+      const result = await Tesseract.recognize(
+        file,
+        'eng',
+        { logger: m => statusEl.innerText = m.status }
+      )
+      statusEl.innerText = "อ่านสำเร็จ"
+      const text = result.data.text
+      const match = text.match(/Km\.?\s*([\d,\.]+)/i)
+      if (match) {
+        const mileage = match[1].replace(/[,]/g, '')
+        resultEl.innerText = "เลขไมล์ที่อ่านได้: " + mileage
+      } else {
+        resultEl.innerText = "❌ ไม่พบเลขไมล์"
+      }
+    })
+  </script>
+</body>
+</html>
